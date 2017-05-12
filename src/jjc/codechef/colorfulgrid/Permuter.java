@@ -12,38 +12,21 @@ import java.util.HashSet;
  * c=8 h=8352<br>
  * c=9 h=14985<br>
  * c=10 h=25300<br>
- * c=11 h=40646<br>
- * c=12 h=61640<br>
- * c=13 h=89092<br>
- * c=14 h=125894<br>
- * c=15 h=174380<br>
- * c=16 h=237264<br>
- * c=17 h=317670<br>
- * c=18 h=419162<br>
- * c=19 h=545774<br>
- * c=20 h=702040<br>
- * c=21 h=905529<br>
- * c=22 h=1067390<br>
- * c=23 h=1332179<br>
- * c=24 h=1640580<br>
- * c=25 h=2005535<br>
- * c=26 h=2434734<br>
- * c=27 h=2936553<br>
- * c=28 h=3520084<br>
- * c=29 h=4195165<br>
- * c=30 h=4972410<br>
- * c=31 h=5932163<br>
- * c=32 h=6785926<br>
- * c=33 h=7731458<br>
- * c=34 h=8981072<br>
- * c=35 h=10386705<br>
- * c=36 h=11967180<br>
- * c=37 h=13738702<br>
+ * c=11 h=40656<br>
+ * c=12 h=62712<br>
+ * c=13 h=93457<br>
+ * c=14 h=135240<br>
+ * c=15 h=190800<br>
+ * c=16 h=263296<br>
+ * c=17 h=356337<br>
+ * c=18 h=474012<br>
+ * c=19 h=620920<br>
+ * c=20 h=802200<br>
  */
 public class Permuter {
 
 	static public void main(String[] args) {
-		for (int i = 2; i < 20; i++) {
+		for (int i = 2; i < 21; i++) {
 			permute(i);
 		}
 	}
@@ -115,7 +98,7 @@ public class Permuter {
 	}
 
 	static public String toString(int[] input) {
-		return new String("" + input[0] + input[1] + input[2] + input[3] + input[4]);
+		return new String(input[0] + " " + input[1] + " " + input[2] + " " + input[3] + " " + input[4]);
 	}
 
 	static public void readout(HashSet<String> hash) {
