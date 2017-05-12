@@ -8,20 +8,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * https://www.codechef.com/problems/ICPC16B
+ */
 public class MainTest {
 	Random random = new Random(0);
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {}
-
-	@Before
-	public void setUp() throws Exception {}
-
-	@After
-	public void tearDown() throws Exception {}
 
 	@Test
 	public void test1() {

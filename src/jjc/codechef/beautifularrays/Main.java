@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 
+/**
+ * https://www.codechef.com/problems/ICPC16B
+ */
 public class Main {
 
 	static public void main(String[] args) throws IOException {
