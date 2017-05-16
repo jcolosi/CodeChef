@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
+
+import jjc.codechef.knots.Cell.Dir;
 
 /**
  * https://www.codechef.com/problems/ACMKANPA
@@ -65,6 +66,45 @@ class Matrix {
 	public void findEnds() {
 		List<Cell> ends = new ArrayList<Cell>();
 		for (int thisRow = 0; thisRow < rows; thisRow++) {
+			if (cells[thisRow][0].c == '*') {
+				ends.add(cells[thisRow][0]);
+				cells[thisRow][0].last = Dir.LEFT;
+			}
+			if (cells[thisRow][cols - 1].c == '*') {
+				ends.add(cells[thisRow][cols - 1]);
+				cells[thisRow][cols - 1].last = Dir.RIGHT;
+			}
+		}
+		for (int thisCol = 1; thisCol < cols - 1; thisCol++) {
+			if (cells[0][thisCol].c == '*') {
+				ends.add(cells[0][thisCol]);
+				cells[0][thisCol].last = Dir.UP;
+			}
+			if (cells[rows - 1][thisCol].c == '*') {
+				ends.add(cells[rows - 1][thisCol]);
+				cells[rows - 1][thisCol].last = Dir.DOWN;
+			}
+		}
+		endA = ends.get(0);
+		endB = ends.get(1);
+	}
+
+	public String getCrux() {
+		StringBuilder out = new StringBuilder();
+		Cell pointer = endA;
+
+		while (pointer != endB) {
+			Cell next = null;
+			if (pointer.hasRight() && pointer.last != Dir.RIGHT) {
+				next = pointer.r;
+				if (next.c == '-') out.append('o');
+			} else if (pointer.hasDown() && pointer.last != Dir.DOWN) next = pointer.d;
+			else if (pointer.hasLeft() && pointer.last != Dir.LEFT) next = pointer.l;
+			else next = pointer.u;
+		}
+
+		List<Cell> ends = new ArrayList<Cell>();
+		for (int thisRow = 0; thisRow < rows; thisRow++) {
 			if (cells[thisRow][0].c == '*') ends.add(cells[thisRow][0]);
 			if (cells[thisRow][cols - 1].c == '*') ends.add(cells[thisRow][cols - 1]);
 		}
@@ -75,6 +115,13 @@ class Matrix {
 		endA = ends.get(0);
 		endB = ends.get(1);
 	}
+
+	// public void applyRowSimple(int row, String data) {
+	// char[] array = data.toCharArray();
+	// for (int thisCol = 0; thisCol < array.length; thisCol++) {
+	// cells[row][thisCol].c = array[thisCol];
+	// }
+	// }
 
 	public void applyRow(int row, String data) {
 		char[] array = data.toCharArray();
@@ -94,27 +141,33 @@ class Matrix {
 		}
 	}
 
-	public boolean isKnot() {
-		reset();
-		// Try up/down
-		Cell a = endA;
-		Cell b = endB;
-		while (true) {
-			// this is so simple to describe. Here it needs to be codified
-			if (a.u.isString())
-			
-		}
-
-		reset();
-		// Try down/up
-
-	}
+	// public boolean isKnot() {
+	// reset();
+	// // Try up/down
+	// Cell a = endA;
+	// Cell b = endB;
+	// while (true) {
+	// // this is so simple to describe. Here it needs to be codified
+	// if (a.u.isString())
+	//
+	// }
+	//
+	// reset();
+	// // Try down/up
+	//
+	// }
 }
 
 class Cell {
+	public enum Dir {
+		UP, LEFT, DOWN, RIGHT
+	}
+
 	public char c; // " " * | -
 	public Cell u, d, l, r;
-	boolean cleared = false;
+	public boolean cleared = false;
+	public Dir last = null;
+	public int id;
 
 	public Cell() {
 		c = ' ';
@@ -130,5 +183,25 @@ class Cell {
 
 	public boolean isString() {
 		return c == '*';
+	}
+
+	public boolean hasUp() {
+		return has(u);
+	}
+
+	public boolean hasDown() {
+		return has(d);
+	}
+
+	public boolean hasLeft() {
+		return has(l);
+	}
+
+	public boolean hasRight() {
+		return has(r);
+	}
+
+	private boolean has(Cell other) {
+		return other != null && other.c != ' ';
 	}
 }
