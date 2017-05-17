@@ -9,12 +9,11 @@ import java.util.HashSet;
 /**
  * https://www.codechef.com/problems/ACMKANPA
  */
-public class Main {
+public class Main5 {
 
 	static public void main(String[] args) throws IOException {
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		int caseNum = 0;
-		// Does the file end with an empty line?
 		while (true) {
 			caseNum++;
 			String line = r.readLine();
@@ -22,14 +21,17 @@ public class Main {
 			String[] rc = line.split(" ");
 			int rows = Integer.parseInt(rc[0]);
 			int cols = Integer.parseInt(rc[1]);
-			Main main = new Main();
+			Main5 main = new Main5();
 			Matrix matrix = main.new Matrix(rows, cols);
 			for (int thisRow = 0; thisRow < rows; thisRow++) {
 				matrix.applyRowSimple(thisRow, r.readLine());
 			}
-
+			// matrix.findEnds();
+			// System.out.format("Case %d: %s%n", caseNum,
+			// matrix.getMatrixString());
 			matrix.buildCrux();
-			// System.out.format(">>> %s%n", matrix.getCruxString());
+			// System.out.format("Case %d: %s%n", caseNum,
+			// matrix.getCruxString());
 
 			String result = matrix.isKnot() ? "knotted" : "straightened";
 			System.out.format("Case %d: %s%n", caseNum, result);
@@ -83,6 +85,32 @@ public class Main {
 				cells[row][thisCol].id = cellId++;
 			}
 		}
+
+		// public void findEnds() {
+		// List<Cell> ends = new ArrayList<Cell>();
+		// for (int thisRow = 0; thisRow < rows; thisRow++) {
+		// if (cells[thisRow][0].c == '-') {
+		// ends.add(cells[thisRow][0]);
+		// }
+		// if (cells[thisRow][cols - 1].c == '-') {
+		// ends.add(cells[thisRow][cols - 1]);
+		// }
+		// }
+		// for (int thisCol = 1; thisCol < cols - 1; thisCol++) {
+		// if (cells[0][thisCol].c == '|') {
+		// ends.add(cells[0][thisCol]);
+		// // cells[0][thisCol].last = Dir.UP;
+		// }
+		// if (cells[rows - 1][thisCol].c == '|') {
+		// ends.add(cells[rows - 1][thisCol]);
+		// // cells[rows - 1][thisCol].last = Dir.DOWN;
+		// }
+		// }
+		// endA = ends.get(0);
+		// endB = ends.get(1);
+		// // System.out.println("A >>> " + endA.id);
+		// // System.out.println("B >>> " + endB.id);
+		// }
 
 		public void buildCrux() {
 			turns = new ArrayList<Turn>();

@@ -5,16 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * https://www.codechef.com/problems/ACMKANPA
  */
-public class Main {
+public class Main4 {
 
 	static public void main(String[] args) throws IOException {
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		int caseNum = 0;
-		// Does the file end with an empty line?
 		while (true) {
 			caseNum++;
 			String line = r.readLine();
@@ -22,14 +22,17 @@ public class Main {
 			String[] rc = line.split(" ");
 			int rows = Integer.parseInt(rc[0]);
 			int cols = Integer.parseInt(rc[1]);
-			Main main = new Main();
+			Main4 main = new Main4();
 			Matrix matrix = main.new Matrix(rows, cols);
 			for (int thisRow = 0; thisRow < rows; thisRow++) {
 				matrix.applyRowSimple(thisRow, r.readLine());
 			}
-
+			matrix.findEnds();
+			// System.out.format("Case %d: %s%n", caseNum,
+			// matrix.getMatrixString());
 			matrix.buildCrux();
-			// System.out.format(">>> %s%n", matrix.getCruxString());
+			// System.out.format("Case %d: %s%n", caseNum,
+			// matrix.getCruxString());
 
 			String result = matrix.isKnot() ? "knotted" : "straightened";
 			System.out.format("Case %d: %s%n", caseNum, result);
@@ -77,135 +80,53 @@ public class Main {
 		}
 
 		public void applyRowSimple(int row, String data) {
-			char[] array = data.trim().toCharArray();
+			char[] array = data.toCharArray();
 			for (int thisCol = 0; thisCol < array.length; thisCol++) {
 				cells[row][thisCol].c = array[thisCol];
 				cells[row][thisCol].id = cellId++;
 			}
 		}
 
-		public void buildCrux() {
-			turns = new ArrayList<Turn>();
-			Cell pointer = null;
-			Dir last = null;
-
-			for (int thisRow = 0; thisRow < rows; thisRow++) {
-				if (cells[thisRow][0].c == '-') {
-					pointer = cells[thisRow][0];
-					last = Dir.LEFT;
-					break;
-				}
-				if (cells[thisRow][cols - 1].c == '-') {
-					pointer = cells[thisRow][cols - 1];
-					last = Dir.RIGHT;
-					break;
-				}
+		private void applyRow(int row, String data) {
+			char[] array = data.toCharArray();
+			for (int thisCol = 0; thisCol < array.length; thisCol++) {
+				char x = array[thisCol];
+				if (x == '|' || x == '-' || x == '+') cells[row][thisCol].c = '*';
+				else if (x == 'I') cells[row][thisCol].c = '|';
+				else if (x == 'H') cells[row][thisCol].c = '-';
+				cells[row][thisCol].id = cellId++;
 			}
-			if (pointer == null) {
-				for (int thisCol = 1; thisCol < cols - 1; thisCol++) {
-					if (cells[0][thisCol].c == '|') {
-						pointer = cells[0][thisCol];
-						last = Dir.DOWN;
-						break;
-					}
-					if (cells[rows - 1][thisCol].c == '|') {
-						pointer = cells[rows - 1][thisCol];
-						last = Dir.UP;
-						break;
-					}
-				}
-			}
-
-			// . | - + H I
-			// TODO
-			int steps = 0;
-			while (true) {
-				steps++;
-				// int thisId = pointer.id; // DEBUG
-				// int thisTurns = turns.size(); // DEBUG
-				// System.out.print(" " + pointer.id); // DEBUG
-
-				char c = pointer.c;
-				if (c == '-') {
-					if (last == Dir.LEFT) pointer = pointer.r;
-					else if (last == Dir.RIGHT) pointer = pointer.l;
-				} else if (c == '|') {
-					if (last == Dir.UP) pointer = pointer.d;
-					else if (last == Dir.DOWN) pointer = pointer.u;
-				} else if (c == '+') {
-					if (last == Dir.UP || last == Dir.DOWN) {
-						if (pointer.hasLeft() && pointer.l.c == '-') {
-							pointer = pointer.l;
-							last = Dir.RIGHT;
-						} else {
-							pointer = pointer.r;
-							last = Dir.LEFT;
-						}
-					} else if (last == Dir.LEFT || last == Dir.RIGHT) {
-						if (pointer.hasUp() && pointer.u.c == '|') {
-							pointer = pointer.u;
-							last = Dir.DOWN;
-						} else {
-							pointer = pointer.d;
-							last = Dir.UP;
-						}
-					}
-				} else if (c == 'H') {
-					if (last == Dir.LEFT) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.r;
-					} else if (last == Dir.RIGHT) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.l;
-					} else if (last == Dir.UP) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.d;
-					} else if (last == Dir.DOWN) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.u;
-					}
-				} else if (c == 'I') {
-					if (last == Dir.LEFT) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.r;
-					} else if (last == Dir.RIGHT) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.l;
-					} else if (last == Dir.UP) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.d;
-					} else if (last == Dir.DOWN) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.u;
-					}
-				}
-
-				// Break out, we're at the end
-				if (pointer.c == '-' && last == Dir.LEFT && pointer.r == null) break;
-				if (pointer.c == '-' && last == Dir.RIGHT && pointer.l == null) break;
-				if (pointer.c == '|' && last == Dir.DOWN && pointer.u == null) break;
-				if (pointer.c == '|' && last == Dir.UP && pointer.d == null) break;
-
-				// DEBUG
-				// if (turns.size() > thisTurns) System.out.println(" >>> " +
-				// getCruxString()); // DEBUG
-				// if (pointer.id == thisId) {
-				// System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
-				// break;
-				// }
-
-				// DEBUG
-				if (steps > 1000) {
-					turns = new ArrayList<Turn>();
-					break;
-				}
-			}
-
-			// System.out.println(" >>> Complete at " + pointer.id); // DEBUG
-
 		}
 
-		public void buildCruxX() {
+		// Using simple add row
+
+		public void findEnds() {
+			List<Cell> ends = new ArrayList<Cell>();
+			for (int thisRow = 0; thisRow < rows; thisRow++) {
+				if (cells[thisRow][0].c == '-') {
+					ends.add(cells[thisRow][0]);
+				}
+				if (cells[thisRow][cols - 1].c == '-') {
+					ends.add(cells[thisRow][cols - 1]);
+				}
+			}
+			for (int thisCol = 1; thisCol < cols - 1; thisCol++) {
+				if (cells[0][thisCol].c == '|') {
+					ends.add(cells[0][thisCol]);
+					// cells[0][thisCol].last = Dir.UP;
+				}
+				if (cells[rows - 1][thisCol].c == '|') {
+					ends.add(cells[rows - 1][thisCol]);
+					// cells[rows - 1][thisCol].last = Dir.DOWN;
+				}
+			}
+			endA = ends.get(0);
+			endB = ends.get(1);
+			// System.out.println("A >>> " + endA.id);
+			// System.out.println("B >>> " + endB.id);
+		}
+
+		public void buildCrux() {
 			turns = new ArrayList<Turn>();
 			Cell pointer = endA;
 
@@ -216,7 +137,6 @@ public class Main {
 			else if (pointer.d == null) last = Dir.DOWN;
 
 			// . | - + H I
-			// TODO
 			while (pointer != endB) {
 				// int thisId = pointer.id; // DEBUG
 				// int thisTurns = turns.size(); // DEBUG
@@ -298,7 +218,6 @@ public class Main {
 			int b = size - 1;
 			HashSet<Integer> cleared = new HashSet<>();
 
-			// TODO
 			while (a < b) {
 				if (turns.get(a).kind == aKind || cleared.contains(turns.get(a).nexus)) {
 					cleared.add(turns.get(a).nexus);
@@ -331,6 +250,14 @@ public class Main {
 			return out.toString();
 		}
 
+		private void reset() {
+			for (int thisRow = 0; thisRow < rows; thisRow++) {
+				for (int thisCol = 0; thisCol < cols; thisCol++) {
+					cells[thisRow][thisCol].reset();
+				}
+			}
+		}
+
 	}
 
 	class Turn {
@@ -349,6 +276,7 @@ public class Main {
 
 		public char c; // . | - + H I
 		public Cell u, d, l, r;
+		public boolean cleared = false;
 		public int id;
 
 		public boolean equals(Object o) {
@@ -357,6 +285,14 @@ public class Main {
 
 		public Cell() {
 			c = '.';
+		}
+
+		public void reset() {
+			cleared = false;
+		}
+
+		public void clear() {
+			cleared = true;
 		}
 
 		public boolean hasUp() {
