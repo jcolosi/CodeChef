@@ -14,25 +14,29 @@ public class Main {
 	static public void main(String[] args) throws IOException {
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		int caseNum = 0;
-		// Does the file end with an empty line?
-		while (true) {
-			caseNum++;
-			String line = r.readLine();
-			if (line == null) break;
-			String[] rc = line.split(" ");
-			int rows = Integer.parseInt(rc[0]);
-			int cols = Integer.parseInt(rc[1]);
-			Main main = new Main();
-			Matrix matrix = main.new Matrix(rows, cols);
-			for (int thisRow = 0; thisRow < rows; thisRow++) {
-				matrix.applyRowSimple(thisRow, r.readLine());
+
+		try {
+			while (true) {
+				caseNum++;
+				String line = r.readLine();
+				if (line == null || line.trim().length() == 0) break;
+				String[] rc = line.split(" ");
+				int rows = Integer.parseInt(rc[0]);
+				int cols = Integer.parseInt(rc[1]);
+				Main main = new Main();
+				Matrix matrix = main.new Matrix(rows, cols);
+				for (int thisRow = 0; thisRow < rows; thisRow++) {
+					matrix.applyRowSimple(thisRow, r.readLine());
+				}
+
+				matrix.buildCrux();
+				// System.out.format(">>> %s%n", matrix.getCruxString());
+
+				String result = matrix.isKnot() ? "knotted" : "straightened";
+				System.out.format("Case %d: %s%n", caseNum, result);
 			}
-
-			matrix.buildCrux();
-			// System.out.format(">>> %s%n", matrix.getCruxString());
-
-			String result = matrix.isKnot() ? "knotted" : "straightened";
-			System.out.format("Case %d: %s%n", caseNum, result);
+		} catch (Exception x) {
+			x.printStackTrace();
 		}
 	}
 
@@ -102,15 +106,15 @@ public class Main {
 				}
 			}
 			if (pointer == null) {
-				for (int thisCol = 1; thisCol < cols - 1; thisCol++) {
+				for (int thisCol = 0; thisCol < cols; thisCol++) {
 					if (cells[0][thisCol].c == '|') {
 						pointer = cells[0][thisCol];
-						last = Dir.DOWN;
+						last = Dir.UP;
 						break;
 					}
 					if (cells[rows - 1][thisCol].c == '|') {
 						pointer = cells[rows - 1][thisCol];
-						last = Dir.UP;
+						last = Dir.DOWN;
 						break;
 					}
 				}
@@ -121,9 +125,9 @@ public class Main {
 			int steps = 0;
 			while (true) {
 				steps++;
-				// int thisId = pointer.id; // DEBUG
-				// int thisTurns = turns.size(); // DEBUG
-				// System.out.print(" " + pointer.id); // DEBUG
+				int thisId = pointer.id; // DEBUG
+				int thisTurns = turns.size(); // DEBUG
+				System.out.print(" " + pointer.id); // DEBUG
 
 				char c = pointer.c;
 				if (c == '-') {
@@ -134,7 +138,7 @@ public class Main {
 					else if (last == Dir.DOWN) pointer = pointer.u;
 				} else if (c == '+') {
 					if (last == Dir.UP || last == Dir.DOWN) {
-						if (pointer.hasLeft() && pointer.l.c == '-') {
+						if (pointer.hasLeft() && pointer.l.c != '|') {
 							pointer = pointer.l;
 							last = Dir.RIGHT;
 						} else {
@@ -142,7 +146,7 @@ public class Main {
 							last = Dir.LEFT;
 						}
 					} else if (last == Dir.LEFT || last == Dir.RIGHT) {
-						if (pointer.hasUp() && pointer.u.c == '|') {
+						if (pointer.hasUp() && pointer.u.c != '-') {
 							pointer = pointer.u;
 							last = Dir.DOWN;
 						} else {
@@ -181,18 +185,18 @@ public class Main {
 				}
 
 				// Break out, we're at the end
-				if (pointer.c == '-' && last == Dir.LEFT && pointer.r == null) break;
-				if (pointer.c == '-' && last == Dir.RIGHT && pointer.l == null) break;
-				if (pointer.c == '|' && last == Dir.DOWN && pointer.u == null) break;
-				if (pointer.c == '|' && last == Dir.UP && pointer.d == null) break;
+				char x = pointer.c;
+				if ((x == '-' || x == 'H' || x == 'I') && last == Dir.LEFT && pointer.r == null) break;
+				if ((x == '-' || x == 'H' || x == 'I') && last == Dir.RIGHT && pointer.l == null) break;
+				if ((x == '|' || x == 'H' || x == 'I') && last == Dir.DOWN && pointer.u == null) break;
+				if ((x == '|' || x == 'H' || x == 'I') && last == Dir.UP && pointer.d == null) break;
 
 				// DEBUG
-				// if (turns.size() > thisTurns) System.out.println(" >>> " +
-				// getCruxString()); // DEBUG
-				// if (pointer.id == thisId) {
-				// System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
-				// break;
-				// }
+				if (turns.size() > thisTurns) System.out.println(" >>> " + getCruxString()); // DEBUG
+				if (pointer.id == thisId) {
+					System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
+					break;
+				}
 
 				// DEBUG
 				if (steps > 1000) {
@@ -201,90 +205,8 @@ public class Main {
 				}
 			}
 
-			// System.out.println(" >>> Complete at " + pointer.id); // DEBUG
+			System.out.println(" >>> Complete at " + pointer.id); // DEBUG
 
-		}
-
-		public void buildCruxX() {
-			turns = new ArrayList<Turn>();
-			Cell pointer = endA;
-
-			Dir last = null;
-			if (pointer.l == null) last = Dir.LEFT;
-			else if (pointer.r == null) last = Dir.RIGHT;
-			else if (pointer.u == null) last = Dir.UP;
-			else if (pointer.d == null) last = Dir.DOWN;
-
-			// . | - + H I
-			// TODO
-			while (pointer != endB) {
-				// int thisId = pointer.id; // DEBUG
-				// int thisTurns = turns.size(); // DEBUG
-				// System.out.print(" " + pointer.id); // DEBUG
-
-				char c = pointer.c;
-				if (c == '-') {
-					if (last == Dir.LEFT) pointer = pointer.r;
-					else if (last == Dir.RIGHT) pointer = pointer.l;
-				} else if (c == '|') {
-					if (last == Dir.UP) pointer = pointer.d;
-					else if (last == Dir.DOWN) pointer = pointer.u;
-				} else if (c == '+') {
-					if (last == Dir.UP || last == Dir.DOWN) {
-						if (pointer.hasLeft() && pointer.l.c == '-') {
-							pointer = pointer.l;
-							last = Dir.RIGHT;
-						} else {
-							pointer = pointer.r;
-							last = Dir.LEFT;
-						}
-					} else if (last == Dir.LEFT || last == Dir.RIGHT) {
-						if (pointer.hasUp() && pointer.u.c == '|') {
-							pointer = pointer.u;
-							last = Dir.DOWN;
-						} else {
-							pointer = pointer.d;
-							last = Dir.UP;
-						}
-					}
-				} else if (c == 'H') {
-					if (last == Dir.LEFT) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.r;
-					} else if (last == Dir.RIGHT) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.l;
-					} else if (last == Dir.UP) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.d;
-					} else if (last == Dir.DOWN) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.u;
-					}
-				} else if (c == 'I') {
-					if (last == Dir.LEFT) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.r;
-					} else if (last == Dir.RIGHT) {
-						turns.add(new Turn(Kind.UNDER, pointer.id));
-						pointer = pointer.l;
-					} else if (last == Dir.UP) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.d;
-					} else if (last == Dir.DOWN) {
-						turns.add(new Turn(Kind.OVER, pointer.id));
-						pointer = pointer.u;
-					}
-				}
-
-				// DEBUG
-				// if (turns.size() > thisTurns) System.out.println(" >>> " +
-				// getCruxString()); // DEBUG
-				// if (pointer.id == thisId) {
-				// System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
-				// break;
-				// }
-			}
 		}
 
 		public boolean isKnot() {
