@@ -9,18 +9,27 @@ import jjc.codechef.knots.Main.Matrix;
 
 public class MainTest {
 	static private final int MAX = 40; // 120
+	static private final double TURN_RATIO = .5;
 
 	Random rand = new Random(0);
 
 	@Test
 	public void test() {
-		for (int i = 0; i < 10; i++) {
-			Matrix x = getRandomMatrix();
-			System.out.println("\n\n>\n" + x.getMatrixString());
+		for (int i = 0; i < 100000; i++) {
+			Matrix x = null;
+			while ((x = getRandomMatrix()) == null) {
+				// System.out.println("Ooops!");
+				x = getRandomMatrix();
+			}
+			// System.out.println("\n\n>\n" + x.getMatrixString());
 			x.buildCrux();
-			System.out.format(">> %s%n", x.getCruxString());
+			// System.out.format(">> %s%n", x.getCruxString());
 			String result = x.isKnot() ? "knotted" : "straightened";
-			System.out.format(">>> %s%n", result);
+			if (result.equals("knotted")) {
+				System.out.println("\n\n>\n" + x.rows + " " + x.cols + "\n" + x.getMatrixString());
+				System.out.format(">> %s%n", x.getCruxString());
+				System.out.format(">>> %s%n", result);
+			}
 		}
 	}
 
@@ -49,12 +58,16 @@ public class MainTest {
 			snake.move(direction);
 			char found = get(data, snake);
 
+			if (isTurnAhead(data, snake, direction)) {
+				return null;
+			}
+
 			if (direction == Dir.LEFT || direction == Dir.RIGHT) {
 				if (found == '|') {
 					if (rand.nextBoolean()) put(data, snake, 'I');
 					else put(data, snake, 'H');
 				} else {
-					if (rand.nextDouble() < .25 && isOpenVertical(data, snake)) {
+					if (rand.nextDouble() < TURN_RATIO && isOpenVertical(data, snake) && !snake.end()) {
 						put(data, snake, '+');
 						direction = rand.nextBoolean() ? Dir.UP : Dir.DOWN;
 					} else {
@@ -66,7 +79,7 @@ public class MainTest {
 					if (rand.nextBoolean()) put(data, snake, 'I');
 					else put(data, snake, 'H');
 				} else {
-					if (rand.nextDouble() < .25 && isOpenHorizontal(data, snake)) {
+					if (rand.nextDouble() < TURN_RATIO && isOpenHorizontal(data, snake) && !snake.end()) {
 						put(data, snake, '+');
 						direction = rand.nextBoolean() ? Dir.LEFT : Dir.RIGHT;
 					} else {
@@ -82,6 +95,17 @@ public class MainTest {
 			out.applyRowSimple(row, new String(data[row]));
 		}
 		return out;
+	}
+
+	boolean isTurnAhead(char[][] data, final MyPoint point, Dir dir) {
+		MyPoint other;
+
+		other = point.clone();
+		if (!other.end(dir)) {
+			other.move(dir);
+			return get(data, other) == '+';
+		}
+		return false;
 	}
 
 	boolean isOpenVertical(char[][] data, final MyPoint point) {
@@ -143,6 +167,10 @@ class MyPoint {
 	static public int MAXCOL;
 	public int row;
 	public int col;
+
+	boolean end() {
+		return (row == 0 || row == MAXROW || col == 0 || col == MAXCOL);
+	}
 
 	boolean end(Dir dir) {
 		if (dir == Dir.UP && row == 0) return true;

@@ -125,9 +125,9 @@ public class Main {
 			int steps = 0;
 			while (true) {
 				steps++;
-				int thisId = pointer.id; // DEBUG
-				int thisTurns = turns.size(); // DEBUG
-				System.out.print(" " + pointer.id); // DEBUG
+				// int thisId = pointer.id; // DEBUG
+				// int thisTurns = turns.size(); // DEBUG
+				// System.out.print(" " + pointer.id); // DEBUG
 
 				char c = pointer.c;
 				if (c == '-') {
@@ -192,20 +192,21 @@ public class Main {
 				if ((x == '|' || x == 'H' || x == 'I') && last == Dir.UP && pointer.d == null) break;
 
 				// DEBUG
-				if (turns.size() > thisTurns) System.out.println(" >>> " + getCruxString()); // DEBUG
-				if (pointer.id == thisId) {
-					System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
-					break;
-				}
+				// if (turns.size() > thisTurns) System.out.println(" >>> " +
+				// getCruxString()); // DEBUG
+				// if (pointer.id == thisId) {
+				// System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
+				// break;
+				// }
 
 				// DEBUG
-				if (steps > 1000) {
-					turns = new ArrayList<Turn>();
-					break;
-				}
+				// if (steps > 1000) {
+				// turns = new ArrayList<Turn>();
+				// break;
+				// }
 			}
 
-			System.out.println(" >>> Complete at " + pointer.id); // DEBUG
+			// System.out.println(" >>> Complete at " + pointer.id); // DEBUG
 
 		}
 
