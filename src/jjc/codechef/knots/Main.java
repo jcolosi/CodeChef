@@ -11,6 +11,8 @@ import java.util.HashSet;
  */
 public class Main {
 
+	static final boolean DEBUG = false;
+
 	static public void main(String[] args) throws IOException {
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		int caseNum = 0;
@@ -30,7 +32,6 @@ public class Main {
 				}
 
 				matrix.buildCrux();
-				// System.out.format(">>> %s%n", matrix.getCruxString());
 
 				String result = matrix.isKnot() ? "knotted" : "straightened";
 				System.out.format("Case %d: %s%n", caseNum, result);
@@ -121,13 +122,16 @@ public class Main {
 			}
 
 			// . | - + H I
-			// TODO
+			if (DEBUG) System.out.println(); // DEBUG
 			int steps = 0;
 			while (true) {
 				steps++;
-				// int thisId = pointer.id; // DEBUG
-				// int thisTurns = turns.size(); // DEBUG
-				// System.out.print(" " + pointer.id); // DEBUG
+
+				int thisId = pointer.id; // DEBUG
+				int thisTurns = turns.size(); // DEBUG
+				if (DEBUG) {
+					System.out.print(" " + pointer.id); // DEBUG
+				}
 
 				char c = pointer.c;
 				if (c == '-') {
@@ -184,30 +188,37 @@ public class Main {
 					}
 				}
 
+				// DEBUG
+				if (DEBUG) {
+					/**
+					 * This shouldn't happen for input from codechef, that
+					 * guarantees '+' will have exactly 2 neighbors. But it is
+					 * possible to construct an input that loops continuously.
+					 * So we bail out here.<br>
+					 * 4 2<br>
+					 * |. <br>
+					 * ++ <br>
+					 * ++ <br>
+					 * |.
+					 */
+					if (pointer.id == thisId || steps > 1000) {
+						System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
+						break;
+					}
+				}
+
 				// Break out, we're at the end
 				char x = pointer.c;
 				if ((x == '-' || x == 'H' || x == 'I') && last == Dir.LEFT && pointer.r == null) break;
 				if ((x == '-' || x == 'H' || x == 'I') && last == Dir.RIGHT && pointer.l == null) break;
 				if ((x == '|' || x == 'H' || x == 'I') && last == Dir.DOWN && pointer.u == null) break;
 				if ((x == '|' || x == 'H' || x == 'I') && last == Dir.UP && pointer.d == null) break;
-
-				// DEBUG
-				// if (turns.size() > thisTurns) System.out.println(" >>> " +
-				// getCruxString()); // DEBUG
-				// if (pointer.id == thisId) {
-				// System.out.println(" >>> DAG GUM IT, BAILOUT!!!");
-				// break;
-				// }
-
-				// DEBUG
-				// if (steps > 1000) {
-				// turns = new ArrayList<Turn>();
-				// break;
-				// }
 			}
 
-			// System.out.println(" >>> Complete at " + pointer.id); // DEBUG
-
+			if (DEBUG) {
+				System.out.println(" " + pointer.id); // DEBUG
+				System.out.println(" " + getCruxString()); // DEBUG
+			}
 		}
 
 		public boolean isKnot() {
